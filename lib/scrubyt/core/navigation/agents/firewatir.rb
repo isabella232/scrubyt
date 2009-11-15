@@ -137,6 +137,23 @@ module Scrubyt
             end
           end      
 
+	  def self.click_by_xpath_without_evaluate(xpath, wait_secs=0)
+		  Scrubyt.log :ACTION, "Clicking by XPath : %p" % xpath        
+		  @@agent.element_by_xpath(xpath).click
+		  Scrubyt.log :INFO, "sleeping #{wait_secs}..."
+		  sleep(wait_secs) if wait_secs > 0
+		  @@agent.wait
+
+		  # does not call evaluate_extractor
+		  #extractor.evaluate_extractor
+
+		  @@current_doc_url = @@agent.url
+		  @@mechanize_doc = "<html>#{@@agent.html}</html>"
+		  @@hpricot_doc = Hpricot(PreFilterDocument.br_to_newline(@@mechanize_doc))
+		  Scrubyt.log :ACTION, "Fetching #{@@current_doc_url}"            
+	  end
+		  
+
           def self.click_by_xpath(xpath, wait_secs=0)
             Scrubyt.log :ACTION, "Clicking by XPath : %p" % xpath        
             @@agent.element_by_xpath(xpath).click
@@ -264,6 +281,7 @@ module Scrubyt
 		    @@current_form = "//select[@name='#{selectlist_name}']/ancestor::form"
 	    end
 	    list = @@agent.select_list(:name,selectlist_name)
+	    #STDOUT.puts "list = #{list.inspect}"
 	    begin
 		    error = list.select(option)
 	    rescue

@@ -132,6 +132,7 @@ module Scrubyt
     def evaluate_extractor
       @root_results ||= []
       current_page_count = 1
+      xpath = nil
       catch :quit_next_page_loop do
         loop do
           url = get_current_doc_url #TODO need absolute address here 2/4
@@ -140,14 +141,21 @@ module Scrubyt
             @root_results.push(*root_pattern.evaluate(get_hpricot_doc, nil))
           end
           
+	  node = nil
           while @processed_pages.include? url #TODO need absolute address here 3/4
             if !@next_page_pattern.nil?
-              throw :quit_next_page_loop if @next_page_pattern.options[:limit] == current_page_count
-              throw :quit_next_page_loop unless @next_page_pattern.filters[0].generate_XPath_for_example(true)
+	      if @next_page_pattern.options[:limit] == current_page_count
+		      throw :quit_next_page_loop
+	      end
+	      unless @next_page_pattern.filters[0].generate_XPath_for_example(true)
+		      throw :quit_next_page_loop
+	      end
               xpath = @next_page_pattern.filters[0].xpath
-              node = (get_hpricot_doc/xpath).map.last
+              node = (get_hpricot_doc/xpath).last
               node = XPathUtils.find_nearest_node_with_attribute(node, 'href')
-              throw :quit_next_page_loop if node == nil || node.attributes['href'] == nil
+	      if node == nil || node.attributes['href'] == nil
+		      throw :quit_next_page_loop
+	      end
               href = node.attributes['href'].gsub('&amp;') {'&'}
               throw :quit_next_page_loop if href == nil
               url = href #TODO need absolute address here 4/4
@@ -158,7 +166,11 @@ module Scrubyt
           end
 
           restore_host_name
-          FetchAction.fetch(url)
+	  if url == "#"
+		  FetchAction.click_by_xpath_without_evaluate(xpath)
+	  else
+		  FetchAction.fetch(url)
+	  end
           
           current_page_count += 1
         end
