@@ -144,7 +144,7 @@ module Scrubyt
 
     def self.to_full_XPath(doc, xpath, generalize)
       elem = doc/xpath
-      elem = elem.map[0] if elem.is_a? Hpricot::Elements
+      elem = elem.first if elem.is_a? Hpricot::Elements
       XPathUtils.generate_XPath(elem, nil, generalize)
     end
 

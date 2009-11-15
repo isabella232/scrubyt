@@ -49,8 +49,10 @@ module Scrubyt
               handle_relative_url(doc_url, resolve)
               Scrubyt.log :ACTION, "fetching document: #{@@current_doc_url}"
               case @@current_doc_protocol
-                when 'file': @@agent.goto("file://"+ @@current_doc_url)
-                else @@agent.goto(@@current_doc_url)
+                when 'file'
+		  @@agent.goto("file://"+ @@current_doc_url)
+                else
+		  @@agent.goto(@@current_doc_url)
               end
               @@mechanize_doc = "<html>#{@@agent.html}</html>"
             else
@@ -252,8 +254,21 @@ module Scrubyt
           ##
           #Action for selecting an option from a dropdown box
           def self.select_option(selectlist_name, option)
-            @@current_form = "//select[@name='#{selectlist_name}']/ancestor::form"
-            @@agent.select_list(:name,selectlist_name).select(option)
+            if selectlist_name.is_a? Hash
+		    select_args = selectlist_name
+		    unless select_args.size == 1
+			    raise "select_option only supports using a name or a hash with a single pair, e.g.: {:id => \"foo1\"}" 
+		    end
+		    @@current_form = "//select[@#{select_args.keys.first}='#{select_args.values.first}']/ancestor::form"
+	    else
+		    @@current_form = "//select[@name='#{selectlist_name}']/ancestor::form"
+	    end
+	    list = @@agent.select_list(:name,selectlist_name)
+	    begin
+		    error = list.select(option)
+	    rescue
+		    list.select_value(option) || error
+	    end
           end
 
           def self.check_checkbox(checkbox_name)
