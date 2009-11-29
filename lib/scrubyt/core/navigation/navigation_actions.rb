@@ -69,6 +69,10 @@ module Scrubyt
     def submit_and_wait(sleep_time, index=nil, type=nil)
       FetchAction.submit(index, sleep_time,  type)
     end
+
+    def set_form_by_xpath(xpath)
+      FetchAction.set_current_form(xpath)
+    end
     
     ##
     #Click the link specified by the text

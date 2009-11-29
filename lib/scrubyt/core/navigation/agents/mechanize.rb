@@ -282,6 +282,17 @@ module Scrubyt
             #find_form_based_on_tag(form_tag, ['name', 'id', 'action'])
           end
 
+
+	        def self.set_current_form(xpath)
+		        form_element = FetchAction.get_mechanize_doc/xpath
+		        FetchAction.get_mechanize_doc.forms.each do |f|
+              @@current_form = f
+              break if f.form_node == form_element 
+            end
+	        end
+
+
+
           def self.find_form_based_on_tag(tag, possible_attrs)
             lookup_attribute_name = nil
             lookup_attribute_value = nil
