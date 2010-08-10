@@ -14,7 +14,7 @@ module Scrubyt
 
       def self.included(base)
         base.module_eval do 
-          @@agent = WWW::Mechanize.new
+          @@agent = Mechanize.new
           @@current_doc_url = nil
           @@current_doc_protocol = nil
           @@base_dir = nil
@@ -39,7 +39,7 @@ module Scrubyt
               parse_and_set_proxy(proxy) if proxy
               if html
                 @@current_doc_protocol = 'string'
-                mechanize_doc = page = WWW::Mechanize::Page.new(nil, {'content-type' => 'text/html'}, html) 
+                mechanize_doc = page = Mechanize::Page.new(nil, {'content-type' => 'text/html'}, html) 
               end
             else
               mechanize_doc = nil
