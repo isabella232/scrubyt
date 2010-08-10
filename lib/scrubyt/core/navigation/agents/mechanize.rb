@@ -114,7 +114,7 @@ module Scrubyt
         end
 
         def self.store_host_name(doc_url)
-          @@host_name = 'http://' + @@mechanize_doc.uri.to_s.match(%r{http://(.+?)/+})[0] if @@current_doc_protocol == 'http'
+          @@host_name = 'http://' + @@mechanize_doc.uri.to_s.match(%r{https?://(.+?)/+})[0] if @@current_doc_protocol == 'http'
           @@host_name = 'https://' + @@mechanize_doc.uri.to_s.match(%r{https://(.+?)/+})[0] if @@current_doc_protocol == 'https'
           @@host_name = doc_url if @@host_name == nil
           @@host_name = @@host_name[0..-2] if @@host_name[-1].chr == '/'
