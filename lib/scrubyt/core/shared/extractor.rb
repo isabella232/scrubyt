@@ -128,56 +128,56 @@ module Scrubyt
       url = href #TODO need absolute address here 1/4
       @next_page_list << url
     end
-    
-    def evaluate_extractor
-      @root_results ||= []
-      current_page_count = 1
-      xpath = nil
-      catch :quit_next_page_loop do
-        loop do
-          url = get_current_doc_url #TODO need absolute address here 2/4
-          @processed_pages << url
-          @root_patterns.each do |root_pattern|
-            @root_results.push(*root_pattern.evaluate(get_hpricot_doc, nil))
-          end
-          
-	  node = nil
-          while @processed_pages.include? url #TODO need absolute address here 3/4
-            if !@next_page_pattern.nil?
-	      if @next_page_pattern.options[:limit] == current_page_count
-		      throw :quit_next_page_loop
-	      end
-	      unless @next_page_pattern.filters[0].generate_XPath_for_example(true)
-		      throw :quit_next_page_loop
-	      end
-              xpath = @next_page_pattern.filters[0].xpath
-              node = (get_hpricot_doc/xpath).last
-              node = XPathUtils.find_nearest_node_with_attribute(node, 'href')
-	      if node == nil || node.attributes['href'] == nil
-		      throw :quit_next_page_loop
-	      end
-              href = node.attributes['href'].gsub('&amp;') {'&'}
-              throw :quit_next_page_loop if href == nil
-              url = href #TODO need absolute address here 4/4
-            else
-              throw :quit_next_page_loop if @next_page_list.empty?
-              url = @next_page_list.pop
-            end
-          end
 
-          restore_host_name
-	  if url == "#"
-		  FetchAction.click_by_xpath_without_evaluate(xpath)
-	  else
-		  FetchAction.fetch(url)
-	  end
-          
-          current_page_count += 1
-        end
-      end
-      @root_patterns = []
-      @root_results
-    end
-    
-  end
+		def evaluate_extractor
+			@root_results ||= []
+			current_page_count = 1
+			xpath = nil
+			catch :quit_next_page_loop do
+				loop do
+					url = get_current_doc_url #TODO need absolute address here 2/4
+					@processed_pages << url
+					@root_patterns.each do |root_pattern|
+						@root_results.push(*root_pattern.evaluate(get_hpricot_doc, nil))
+					end
+
+					node = nil
+					while @processed_pages.include? url #TODO need absolute address here 3/4
+						if !@next_page_pattern.nil?
+							if @next_page_pattern.options[:limit] == current_page_count
+								throw :quit_next_page_loop
+							end
+							unless @next_page_pattern.filters[0].generate_XPath_for_example(true)
+								throw :quit_next_page_loop
+							end
+							xpath = @next_page_pattern.filters[0].xpath
+							node = (get_hpricot_doc/xpath).last
+							node = XPathUtils.find_nearest_node_with_attribute(node, 'href')
+							if node == nil || node.attributes['href'] == nil
+								throw :quit_next_page_loop
+							end
+							href = node.attributes['href'].gsub('&amp;') {'&'}
+							throw :quit_next_page_loop if href == nil
+							url = href #TODO need absolute address here 4/4
+						else
+							throw :quit_next_page_loop if @next_page_list.empty?
+							url = @next_page_list.pop
+						end
+					end
+
+					restore_host_name
+					if url == "#"
+						FetchAction.click_by_xpath_without_evaluate(xpath)
+					else
+						FetchAction.fetch(url)
+					end
+
+					current_page_count += 1
+				end
+			end
+			@root_patterns = []
+			@root_results
+		end
+
+	end
 end
