@@ -121,7 +121,7 @@ module Scrubyt
     #children - and if we don't find a link, traverse up
     def self.find_nearest_node_with_attribute(node, attribute)
       @node = nil
-      return node if node.is_a? Hpricot::Elem and node[attribute]
+      return node if node.is_a?(Hpricot::Elem) and node.attributes.to_hash.has_key?(attribute)
       first_child_node_with_attribute(node, attribute)
       first_parent_node_with_attribute(node, attribute) if !@node
       @node
@@ -185,13 +185,13 @@ private
 
     def self.first_child_node_with_attribute(node, attribute)
       return if !node.instance_of? Hpricot::Elem || @node
-      @node = node if node.attributes[attribute]
+      @node = node if node.attributes.to_hash.has_key?(attribute)
       node.children.each  { |child| first_child_node_with_attribute(child, attribute) }
     end
 
     def self.first_parent_node_with_attribute(node, attribute)
       return if !node.instance_of? Hpricot::Elem || @node
-      @node = node if node.attributes[attribute]
+      @node = node if node.attributes.to_hash.has_key?(attribute)
       first_parent_node_with_attribute(node.parent, attribute)
     end
 
