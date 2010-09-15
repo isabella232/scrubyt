@@ -63,11 +63,15 @@ module Scrubyt
     ##
     #Submit the current form
     def submit(index=nil, type=nil)
-      FetchAction.submit(nil, index, type)
+      FetchAction.submit(index, nil, type)
     end
     
     def submit_and_wait(sleep_time, index=nil, type=nil)
       FetchAction.submit(index, sleep_time,  type)
+    end
+
+    def set_form_by_xpath(xpath)
+      FetchAction.set_current_form(xpath)
     end
     
     ##
